@@ -1,0 +1,36 @@
+Print download progress as whole lines when stdout is not a terminal.
+
+setup.py's download() redraws one progress line with "\r" and no newline, so
+StartOS's line-based service log shows nothing until a 30+ GB shard finishes.
+Off a TTY this prints a normal line every 30 s instead.
+
+Retire when upstream's download() prints newline-terminated progress off a TTY.
+
+diff --git a/setup.py b/setup.py
+index 8a3cb96..a05df71 100644
+--- a/setup.py
++++ b/setup.py
+@@ -1370,17 +1370,21 @@ def download(url, dst: Path, what=None):
+                     f.truncate()
+                     have = 0
+                 last = 0.0
++                tty = sys.stdout.isatty()                # a log keeps whole lines only: one every 30 s there
+                 while True:
+                     b = r.read(8 << 20)
+                     if not b:
+                         break
+                     f.write(b)
+                     have += len(b)
+-                    if time.time() - last > 2:
++                    if time.time() - last > (2 if tty else 30):
+                         last = time.time()
+                         size = f"{have / 1e9:6.2f} / {total / 1e9:.2f} GB ({100 * have / total:.0f}%)" if total \
+                             else f"{have / 1e6:7.1f} MB"
+-                        print(f"\r  {what or dst.name}: {size}   ", end="", flush=True)
++                        if tty:
++                            print(f"\r  {what or dst.name}: {size}   ", end="", flush=True)
++                        else:
++                            print(f"  {what or dst.name}: {size}", flush=True)
+             print()
+             if not total or have >= total:
+                 break
