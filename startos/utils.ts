@@ -1,8 +1,8 @@
+// The one interface: nginx on apiPort, in front of Strata on strataPort. It
+// passes API-key requests through and puts the web app behind the UI password.
 export const apiHostId = 'api'
 export const apiPort = 8080
-// nginx in front of the web app: checks the UI password and adds the API key.
-export const uiHostId = 'ui'
-export const uiPort = 8081
+export const strataPort = 8082
 export const uiUsername = 'admin'
 export const uiRealm = 'Strata'
 

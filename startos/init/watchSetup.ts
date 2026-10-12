@@ -1,4 +1,4 @@
-import { setApiKey } from '../actions/setApiKey'
+import { apiKey } from '../actions/apiKey'
 import { setModel } from '../actions/setModel'
 import { setUiPassword } from '../actions/setUiPassword'
 import { credentialsJson } from '../fileModels/credentials.json'
@@ -8,7 +8,7 @@ import { sdk } from '../sdk'
 
 export const watchSetup = sdk.setupOnInit(async (effects) => {
   if (!(await credentialsJson.read((c) => c.apiKey).const(effects))) {
-    await sdk.action.createOwnTask(effects, setApiKey, 'critical', {
+    await sdk.action.createOwnTask(effects, apiKey, 'critical', {
       reason: i18n('Set an API key so only your apps can use Strata'),
     })
   }

@@ -2,6 +2,7 @@ import { rm } from 'node:fs/promises'
 import { storeJson } from '../fileModels/store.json'
 import { systemMemoryGB } from '../hardware'
 import { i18n } from '../i18n'
+import { downloadProgress } from '../modelFiles'
 import { sdk } from '../sdk'
 import { configFile, contexts, PresetId, presets } from '../utils'
 
@@ -24,17 +25,21 @@ const inputSpec = InputSpec.of({
     const ramGB = await systemMemoryGB(effects)
     const ids = Object.keys(presets) as PresetId[]
     const fits = (id: PresetId) => ramGB === 0 || ramGB >= presets[id].ramGB
+    const label = async (id: PresetId) => {
+      const { ramGB: ram, downloadGB: download } = presets[id]
+      const size = (await downloadProgress(presets[id])).done
+        ? i18n('${ram} GB RAM, downloaded', { ram })
+        : i18n('${ram} GB RAM, ${download} GB download', { ram, download })
+      return `${presetLabels[id]} · ${size}`
+    }
     return {
       name: i18n('Model'),
       description: i18n(
-        'Sizes this server does not have enough RAM for are disabled. Each one is a download of 58-84 GB.',
+        'Sizes this server does not have enough RAM for are disabled. A size not downloaded yet is a download of 58-84 GB.',
       ),
       default: fits('iq2_xs') ? 'iq2_xs' : 'coder',
       values: Object.fromEntries(
-        ids.map((id) => [
-          id,
-          `${presetLabels[id]} · ${i18n('${ram} GB RAM, ${download} GB download', { ram: presets[id].ramGB, download: presets[id].downloadGB })}`,
-        ]),
+        await Promise.all(ids.map(async (id) => [id, await label(id)])),
       ),
       disabled: ids.filter((id) => !fits(id)),
     }

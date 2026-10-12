@@ -16,7 +16,7 @@ export const setUiPassword = sdk.Action.withoutInput(
         ? i18n('Reset Web UI Password')
         : i18n('Set Web UI Password'),
       description: i18n(
-        'Generate the password for logging in to the Web UI interface. The username is always "admin".',
+        'Generate the password your browser asks for on the Web UI. The username is always "admin".',
       ),
       warning: alreadySet
         ? i18n(
@@ -40,7 +40,7 @@ export const setUiPassword = sdk.Action.withoutInput(
       version: '1',
       title: i18n('Web UI Password Set'),
       message: i18n(
-        'Log in to the Web UI interface with these credentials. Save the password now: running this action again replaces it.',
+        'Log in to the Web UI with these credentials. Save the password now: running this action again replaces it.',
       ),
       result: {
         type: 'group',

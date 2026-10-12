@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="title desc">
+  <title id="title">Strata logo</title>
+  <desc id="desc">Three stacked isometric slabs: slate at the base, grey in the middle, amber on top.</desc>
+  <g stroke-width="12" stroke-linejoin="round">
+    <polygon points="256,276 456,352 256,428 56,352" fill="#5F6570" stroke="#5F6570"/>
+    <polygon points="256,180 456,256 256,332 56,256" fill="#8A8F98" stroke="#8A8F98"/>
+    <polygon points="256,84 456,160 256,236 56,160" fill="#E8912D" stroke="#E8912D"/>
+  </g>
+</svg>
