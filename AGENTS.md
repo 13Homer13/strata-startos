@@ -8,11 +8,9 @@ bare clone with no workspace, the full guide is at <https://docs.start9.com/pack
 
 ## This repo
 
-- **Clone with `--recurse-submodules`.** The image builds from `strata/`; an empty submodule fails `docker build` at `COPY strata/`.
-- **Keep `Dockerfile` in step with `strata/Dockerfile`.** It is a hand-copy of upstream's build with `STRATA_PORTABLE=ON` and a runtime stage; diff upstream's on every bump (`UPDATING.md`). Don't drop `STRATA_PORTABLE` — without it ggml is built for the CI machine's CPU and a different server dies on an illegal instruction.
-- **`configFile()` in `startos/utils.ts` must match the tag `strata/docker-entrypoint.sh` derives from `FAMILY`/`MODEL`.** Set Model deletes that file to force a setup run; a mismatch silently leaves the old setup in place.
-- **The key reaches the server only through `STRATA_API_KEY`.** It overrides the `api_key` recorded in the model config, which is why rotating it needs no setup run. Don't move it to `--api-key` on the setup command alone.
-- **`patches/` must apply to every bumped `strata/`.** The `Dockerfile` `git apply`s each one and fails the build if one no longer applies; each patch's header says when it retires.
+- **`configFile()`, `dataDir` and `installDir` in `startos/utils.ts` must match the image's layout** (`setup.py` names the run settings `strata-<tag>.json` in `STRATA_INSTALL_DIR`). The Strata API health check and Delete Models find a model's run settings by that name; a mismatch reports a set-up model as still downloading and leaves its files behind on delete.
+- **The key reaches the server only through `API_KEY`.** The entrypoint passes it to `strata launch`, which puts it over the key saved in the `docker` preset on every start, which is why rotating it needs no setup run.
+- **The image is upstream's, unmodified.** Upstream has no Dockerfile hook for fixes; carrying one again means a `Dockerfile` `FROM` the ghcr tag, not a return to the source build.
 - **`main.ts` reads `store.json` through a narrowed `.const()`.** Reading the whole store would make a Web UI password change restart Strata and reload the model; nginx picks up a new password through `onChange` instead.
 - **nginx keeps the `api` host's 8080 binding; Strata stays on `strataPort`.** Every app was given an address on that binding, so moving nginx to another port changes them all. Retire a binding you drop (`interfaces.md` § Retiring a Host or Binding).
 - **Keep nginx's `$strata_foreign` Origin check.** nginx swaps a browser's Web UI password for the API key, which turns off Strata's own cross-origin refusal; without the check any website the user visits can spend the GPU through their saved login.

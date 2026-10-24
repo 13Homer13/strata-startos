@@ -8,6 +8,7 @@ import { sdk } from './sdk'
 import {
   apiPort,
   configFile,
+  installDir,
   presets,
   strataPort,
   uiRealm,
@@ -104,6 +105,28 @@ server {
 }
 `
 
+// Set Model's choices as the image's VISION values: "On (GPU)" is the GPU
+// reader on any card, where upstream's plain "on" picks the CPU under 24 GB.
+const visionValues: Record<string, string> = {
+  no: 'off',
+  yes: 'gpu',
+  cpu: 'cpu',
+}
+
+// /health answers without a key as soon as the server listens, which is before
+// the model has loaded.
+const modelLoaded = async (): Promise<boolean | null> => {
+  try {
+    const res = await fetch(`http://127.0.0.1:${strataPort}/health`, {
+      signal: AbortSignal.timeout(4000),
+    })
+    const body = (await res.json()) as { loaded?: boolean }
+    return body.loaded === true
+  } catch {
+    return null
+  }
+}
+
 const notReadyPage = () => `<!doctype html>
 <html><head><meta charset="utf-8"><meta http-equiv="refresh" content="30">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Strata</title>
@@ -132,7 +155,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     )
 
   const preset = presets[store.preset]
-  const config = sdk.volumes.main.subpath(`config/${configFile(preset)}`)
+  const config = sdk.volumes.main.subpath(`${installDir}/${configFile(preset)}`)
   const isSetUp = () =>
     access(config).then(
       () => true,
@@ -184,39 +207,38 @@ export const main = sdk.setupMain(async ({ effects }) => {
         'strata-sub',
       ),
       exec: {
-        command: ['/opt/strata/docker-entrypoint.sh'],
-        cwd: '/opt/strata',
+        // The image's own entrypoint: `strata launch` with these settings,
+        // saved as the "docker" preset in /data/state. The image's env puts
+        // the run settings in /data/install and the models in /data/Strata-data.
+        command: ['/opt/strata/entrypoint.sh'],
         // The engine releases tens of GB of page-locked RAM on SIGTERM.
         sigtermTimeout: 180_000,
         env: {
-          STRATA_DATA: '/data',
           FAMILY: preset.family,
           MODEL: preset.model,
           CONTEXT: store.context,
-          VISION: store.vision,
-          HOST: '0.0.0.0',
+          VISION: visionValues[store.vision] ?? 'off',
           PORT: String(strataPort),
+          // Replaces the key saved in the preset on every start.
           API_KEY: apiKey,
-          // Overrides the key recorded in the model's config at setup.
-          STRATA_API_KEY: apiKey,
         },
       },
       ready: {
         display: i18n('Strata API'),
         gracePeriod: 15 * 60 * 1000,
         fn: async () => {
-          const res = await sdk.healthCheck.checkPortListening(
-            effects,
-            strataPort,
-            {
-              successMessage: i18n('The model is loaded and the API is ready'),
-              errorMessage: i18n('The model is loading'),
-            },
-          )
-          if (res.result === 'success') return res
+          const loaded = await modelLoaded()
+          if (loaded) {
+            return {
+              result: 'success',
+              message: i18n('The model is loaded and the API is ready'),
+            }
+          }
           // Loading, not failure: after an hours-long first download the grace
           // period is long gone. A crash still shows, as the daemon exiting.
-          if (await isSetUp()) return { ...res, result: 'loading' }
+          if (loaded === false || (await isSetUp())) {
+            return { result: 'loading', message: i18n('The model is loading') }
+          }
           // No config yet: setup.py is running (first start, or Set Model).
           const { bytes, done } = await downloadProgress(preset)
           if (done) {
@@ -263,12 +285,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           )
           if (proxy.result !== 'success') return proxy
           // nginx answers with the "not ready yet" page until Strata listens.
-          const api = await sdk.healthCheck.checkPortListening(
-            effects,
-            strataPort,
-            { successMessage: '', errorMessage: '' },
-          )
-          return api.result === 'success'
+          return (await modelLoaded())
             ? proxy
             : { result: 'loading', message: i18n('Waiting for the Strata API') }
         },

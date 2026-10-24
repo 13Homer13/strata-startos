@@ -13,7 +13,7 @@ export const manifest = setupManifest({
   volumes: ['main', 'public'],
   images: {
     strata: {
-      source: { dockerBuild: {} },
+      source: { dockerTag: 'ghcr.io/niko1221/strata:0.2.3-cuda13' },
       arch: ['x86_64'],
       emulateMissing: false,
       nvidiaContainer: true,

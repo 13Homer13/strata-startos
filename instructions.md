@@ -36,7 +36,7 @@ Any model name works.
    10K tokens). The Coder fits 32 GB of RAM and is good at code, but weaker at everything else.
 4. Start Strata. The first start downloads the model (58–84 GB) and prepares it, which can take hours. The
    **Strata API** check shows how much is downloaded, then that the model is being prepared, then that it is loading.
-   The logs print the download's progress every 30 seconds.
+   The logs print the download's progress every 10%.
 5. When the check turns green, open the **Web UI and API** interface, log in, and send a chat to make sure it answers.
 
 Every later start skips the download and takes 1–3 minutes to load the model.
@@ -97,10 +97,10 @@ STRATA_API_KEY=<your key> NODE_EXTRA_CA_CERTS=/path/to/your-server-root-ca.crt o
 
 ### Desktop chat apps
 
-Choose an "OpenAI-compatible" provider, enter the base URL and the API key, and type any model name. If an app
-reports that the prompt plus max tokens exceeds the context, lower its maximum output, or turn on
-**fit_max_tokens** in the **Model settings** card on the Web UI's **About** tab so Strata shortens the reply instead.
-That only helps when the prompt itself still fits: a conversation longer than the context needs a larger context.
+Choose an "OpenAI-compatible" provider, enter the base URL and the API key, and type any model name. Strata
+shortens a reply whose maximum output would not fit in the context (**fit_max_tokens** in the **Model settings** card
+on the Web UI's **About** tab, on by default). That only helps when the prompt itself still fits: a conversation
+longer than the context needs a larger context.
 
 ### Claude Code and other Anthropic-API apps
 
@@ -110,7 +110,7 @@ Set `ANTHROPIC_BASE_URL` to the interface address without `/v1`, and `ANTHROPIC_
 
 Run **Set Model** again. Strata restarts. A size you haven't used before is downloaded on that start. Changing only
 the context or images re-applies the model you already have, which takes a few minutes, not hours. Settings you saved
-in the Web UI's **Model settings** card go back to their defaults when Set Model changes anything.
+in the Web UI's **Model settings** card are kept.
 
 Each size stays on disk (60–85 GB each). To free space, run **Delete Models** and pick the sizes you no longer use;
 the one in use can't be deleted.
@@ -135,5 +135,5 @@ Restart Strata. If it keeps happening, check Strata's logs.
 
 ## Limitations
 
-- Strata needs an NVIDIA graphics card (RTX 20 series or newer, 12 GB of video memory recommended), at least 32 GB of
+- Strata needs an NVIDIA graphics card (RTX 20 series or newer with driver 580 or newer, 12 GB of video memory recommended), at least 32 GB of
   RAM and an AVX2 processor. While the model loads, the whole server can be slow for a few minutes.

@@ -1,7 +1,7 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '0.1.41:0',
+  version: '0.2.3:0',
   releaseNotes: {
     en_US:
       'Initial release for StartOS. Strata runs a large language model on an NVIDIA graphics card, with an OpenAI- and Anthropic-compatible API protected by an API key, and its own web app behind a password on the same "Web UI and API" interface. Choose the model size and context with "Set Model". Requires an NVIDIA GPU and at least 32 GB of RAM.',

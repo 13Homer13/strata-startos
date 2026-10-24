@@ -3,6 +3,8 @@ import { join } from 'node:path'
 import { sdk } from './sdk'
 import {
   configFile,
+  dataDir,
+  installDir,
   modelShards,
   modelTag,
   Preset,
@@ -10,15 +12,22 @@ import {
   presets,
 } from './utils'
 
-// What setup.py keeps per model in the main volume (STRATA_DATA). The vision
-// encoder (models/mmproj-*.gguf) and the MTP draft layer (mtp/) are shared by
-// every model and stay.
-const modelPaths = (preset: Preset) => [
-  `models/${modelTag(preset)}`,
-  `packs/${modelTag(preset).toLowerCase()}`,
-  `config/${configFile(preset)}`,
-  `config/${configFile(preset)}.bak`,
-]
+// What Strata keeps per model in the main volume. The vision encoder
+// (models/mmproj-*.gguf) and the MTP draft layer (mtp/) are shared by every
+// model and stay.
+const modelPaths = (preset: Preset) => {
+  const config = `${installDir}/${configFile(preset)}`
+  const base = config.slice(0, -'.json'.length)
+  return [
+    `${dataDir}/models/${modelTag(preset)}`,
+    `${dataDir}/packs/${modelTag(preset).toLowerCase()}`,
+    config,
+    `${config}.bak`,
+    `${base}.log`,
+    `${base}.shared-settings.json`,
+    `${installDir}/run-${modelTag(preset).toLowerCase()}.sh`,
+  ]
+}
 
 async function readdirSafe(path: string): Promise<string[]> {
   try {
@@ -29,10 +38,13 @@ async function readdirSafe(path: string): Promise<string[]> {
   }
 }
 
-// A setup run renames <shard>.part to <shard> under our feet.
+// The bytes on disk, not the length: a download over several connections
+// writes pieces all through a sparse .part file, so its length jumps to the
+// whole size at once. A setup run renames <shard>.part to <shard> under our feet.
 async function sizeOf(path: string): Promise<number> {
   try {
-    return (await stat(path)).size
+    const info = await stat(path)
+    return Math.min(info.size, info.blocks * 512)
   } catch (e: any) {
     if (e.code === 'ENOENT') return 0
     throw e
@@ -44,7 +56,7 @@ async function sizeOf(path: string): Promise<number> {
 export async function downloadProgress(
   preset: Preset,
 ): Promise<{ bytes: number; done: boolean }> {
-  const dir = sdk.volumes.main.subpath(`models/${modelTag(preset)}`)
+  const dir = sdk.volumes.main.subpath(`${dataDir}/models/${modelTag(preset)}`)
   const names = await readdirSafe(dir)
   let bytes = 0
   for (const name of names) {

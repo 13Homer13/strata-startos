@@ -38,6 +38,11 @@ export type PresetId = keyof typeof presets
 
 export const contexts = ['32768', '65536', '131072'] as const
 
+// The image's layout in the main volume (/data): `strata launch --data-dir`
+// holds the model files, STRATA_INSTALL_DIR the run settings.
+export const dataDir = 'Strata-data'
+export const installDir = 'install'
+
 // setup.py's tag for a family and model: models/<tag>/ holds the downloaded
 // shards, packs/<tag in lower case>/ the prepared model.
 export const modelTag = (preset: Preset) =>
@@ -46,6 +51,7 @@ export const modelTag = (preset: Preset) =>
 // Every preset is two shards (setup.py's model_shards).
 export const modelShards = 2
 
-// The file name docker-entrypoint.sh derives from FAMILY and MODEL.
+// The run settings setup.py writes into installDir for a tag. The server keeps
+// <name>.bak, .log and .shared-settings.json beside it.
 export const configFile = (preset: Preset) =>
   `strata-${modelTag(preset).toLowerCase()}.json`

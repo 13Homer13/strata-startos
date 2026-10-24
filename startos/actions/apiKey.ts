@@ -89,6 +89,7 @@ export const apiKey = sdk.Action.withInput(
             masked: true,
             copyable: true,
             qr: false,
+            launchable: false,
           },
           ...(bridge
             ? [
@@ -102,6 +103,7 @@ export const apiKey = sdk.Action.withInput(
                   masked: false,
                   copyable: true,
                   qr: false,
+                  launchable: false,
                 },
               ]
             : []),

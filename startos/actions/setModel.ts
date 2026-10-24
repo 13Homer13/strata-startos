@@ -1,10 +1,9 @@
-import { rm } from 'node:fs/promises'
 import { storeJson } from '../fileModels/store.json'
 import { systemMemoryGB } from '../hardware'
 import { i18n } from '../i18n'
 import { downloadProgress } from '../modelFiles'
 import { sdk } from '../sdk'
-import { configFile, contexts, PresetId, presets } from '../utils'
+import { contexts, PresetId, presets } from '../utils'
 
 const { InputSpec, Value } = sdk
 
@@ -109,11 +108,8 @@ export const setModel = sdk.Action.withInput(
       before.vision === input.vision
     if (unchanged) return null
 
-    // A missing config makes the entrypoint run setup again; downloaded files are reused.
-    await rm(
-      sdk.volumes.main.subpath(`config/${configFile(presets[input.preset])}`),
-      { force: true },
-    )
+    // `strata launch` sets the model up again on the next start when a choice
+    // changed, reusing downloaded files and keeping the web app's Model settings.
     await storeJson.merge(effects, {
       preset: input.preset,
       context: input.context,
