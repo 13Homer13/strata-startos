@@ -67,7 +67,9 @@ Two volumes. `main` holds everything Strata downloads and prepares; `public` hol
 The image's environment sets `STRATA_INSTALL_DIR=/data/install`, `XDG_STATE_HOME=/data/state`,
 `XDG_CONFIG_HOME=/data/config` and `HOME=/data/home`. On its first start over a 0.1.x volume, the entrypoint moves
 `models/`, `packs/` and `mtp/` into `Strata-data/` (a rename, nothing downloaded again); the 0.1.x
-`config/strata-*.json` files are left there and no longer read.
+`config/strata-*.json` files are left there and no longer read. If `.gguf` files are still in `/data/models` after that move (a move that
+failed), the entrypoint stops with "There are model files in …" rather than download the model again; the package
+sets neither `MODEL_PATH` nor `ALLOW_DOWNLOAD`, so move them into `Strata-data/models/<tag>/` with `package attach`.
 
 Each model size costs roughly 60–85 GB on `main` (download plus prepared pack). Switching sizes accumulates them
 until **Delete Models** removes one. Shard 2 is hard-linked between the Qwen sizes and the Coder, so its ~30 GB are
