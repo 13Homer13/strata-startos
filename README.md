@@ -140,6 +140,23 @@ address fails for those services because they don't trust the server's root CA.
 
 ## Installation and First-Run Flow
 
+### Signing Key
+
+This package is published on `https://registry.start9.pl`, not on a Start9 registry. On StartOS 0.4.1 and later, the
+Marketplace Install button stays disabled until the server trusts a key that signed the package. Add this public key
+under **System → Trusted keyrings → Add** (see [Trusted Keyrings](https://docs.start9.com/start-os/trusted-keys.html)):
+
+```
+-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VwAyEADITtWrNMNtESh9mB0Oq1jIuNFNM8Nglpmll+51I0hvk=
+-----END PUBLIC KEY-----
+```
+
+It signs `0.2.9:0` and later. The Add form leaves a new keyring trusted for service packages only, which is all
+Strata needs, so leave OS updates off.
+
+### First Run
+
 Nothing is downloaded at install. Three critical tasks block the first start until the user runs **API Key**,
 **Set Web UI Password** and **Set Model**. On the first start after that, the entrypoint downloads the chosen size from Hugging Face (58–84 GB
 plus a ~6 GB draft layer), prepares its pack, writes `install/strata-<tag>.json`, and only then loads the model. That
