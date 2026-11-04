@@ -34,3 +34,20 @@ Take the highest version that `ghcr.io/niko1221/strata` actually lists (the imag
 5. Set `version` in `startos/versions/current.ts` to the tag without its `v` (`0.2.3` → `0.2.3:0`) and update
    the release notes.
 6. `make`, then install and confirm a model still starts and answers on `/v1`.
+
+## Publishing
+
+Pushing a `v<version>_<revision>` tag publishes the package. `.github/workflows/release.yml` builds it, creates the
+GitHub release and adds the s9pk to the registry in the `RELEASE_REGISTRY` repository variable, with the release asset
+as its download URL:
+
+```bash
+git tag v0.2.10_0 && git push origin v0.2.10_0     # package version 0.2.10:0
+```
+
+- Push the version bump to `master` first, and tag that commit. Without the leading `v` the workflow doesn't run.
+- The registry lists the version in the code, whatever the tag says, so keep the two the same.
+- The `DEV_KEY` secret signs the s9pk and the registry entry. It is a registry signer for `strata` only, not an admin.
+  A box must trust its public key under System → Trusted keyrings to install what it signs.
+- If a release doesn't appear on the registry, check the `Publish` job: `gh run list -w Release`, then
+  `gh run view <id> --log-failed`.
