@@ -61,7 +61,7 @@ Two volumes. `main` holds everything Strata downloads and prepares; `public` hol
 
 | Volume   | Mount point             | Contents                                                                                                                                                                                                                                                                                                                          |
 | -------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `main`   | `/data` in `strata-sub` | `Strata-data/models/<SIZE>/` (GGUF shards), `Strata-data/packs/<size>/` (prepared packs), `Strata-data/mtp/` (draft layer), `install/strata-<tag>.json` (each model's run settings, plus its `.log`), `state/` (the `docker` preset, tuning, a copy of the key), `config/` and `home/` (the Terminal's own), `startos/store.json` |
+| `main`   | `/data` in `strata-sub` | `Strata-data/models/<SIZE>/` (GGUF shards), `Strata-data/packs/<size>/` (prepared packs), `Strata-data/mtp/` (draft layer), `Strata-data/dflash2/` (DFlash2 drafter, about 0.8 GB), `install/strata-<tag>.json` (each model's run settings, plus its `.log`), `state/` (the `docker` preset, tuning, a copy of the key), `config/` and `home/` (the Terminal's own), `startos/store.json` |
 | `public` | not mounted by Strata   | `credentials.json` — `{ "apiKey": "…" }`, readable by services that depend on Strata                                                                                                                                                                                                                                              |
 
 The image's environment sets `STRATA_INSTALL_DIR=/data/install`, `XDG_STATE_HOME=/data/state`,
@@ -144,7 +144,7 @@ address fails for those services because they don't trust the server's root CA.
 
 This package is published on `https://registry.start9.pl`, not on a Start9 registry. On StartOS 0.4.1 and later, the
 Marketplace Install button stays disabled until the server trusts a key that signed the package. Add this public key
-under **System → Trusted keyrings → Add** (see [Trusted Keyrings](https://docs.start9.com/start-os/trusted-keys.html)):
+under **System → Trusted Keys** (see [Trusted Keys](https://docs.start9.com/start-os/trusted-keys.html); **System → Trusted keyrings → Add** before StartOS 0.4.1.2):
 
 ```
 -----BEGIN PUBLIC KEY-----
@@ -152,8 +152,7 @@ MCowBQYDK2VwAyEADITtWrNMNtESh9mB0Oq1jIuNFNM8Nglpmll+51I0hvk=
 -----END PUBLIC KEY-----
 ```
 
-It signs `0.2.9:0` and later. The Add form leaves a new keyring trusted for service packages only, which is all
-Strata needs, so leave OS updates off.
+It signs `0.2.9:0` and later. Trust it for service packages only, which is all Strata needs, and leave OS updates off.
 
 ### First Run
 
@@ -186,7 +185,7 @@ Four actions, all safe to run in any state.
   restarting Strata.
 - **Delete Models** — lists every size with files on disk (`Strata-data/models/<SIZE>/`, `Strata-data/packs/<size>/`, its run settings), with its
   size and the part shared with another size. The size in use is disabled and refused. Deletes the selected sizes'
-  folders and configs, then checks they are gone. The vision encoder and the MTP draft layer are shared and stay.
+  folders and configs, then checks they are gone. The vision encoder, the MTP draft layer and the DFlash2 drafter are shared and stay.
 
 ## Tasks
 
@@ -212,7 +211,7 @@ check reads the files under `Strata-data/models/<SIZE>/` to say how far it is:
   against the size's download (bytes on disk, since the download fills a sparse `.part` over 8 connections). Expected
   on a first start and after picking a new size. The logs print a progress line every 10%. Not a fault.
 - **Loading — "The model is downloaded. Preparing it and applying its settings"**: every shard has its `.done` mark,
-  so setup is preparing the pack, fetching the MTP draft layer (first time only) or just re-applying a changed context
+  so setup is preparing the pack, fetching the MTP draft layer or the DFlash2 drafter (first time only) or just re-applying a changed context
   or image setting. Minutes, not hours.
 - **Loading — "The model is loading"** after setup, or while `/health` says `loaded: false`: the model is being loaded into RAM (1–3 minutes, longer on a
   first load). It stays a loading state past the grace period, which a first start spends downloading. If the engine
@@ -246,7 +245,9 @@ prepares the model again before it answers.
    `STRATA_SET` engine settings are not exposed.
 3. The Unsloth, Gyro and NVFP4 models are not offered.
 4. Upstream's MCP server (`tools/strata_mcp.py`) is not run.
-5. Upstream's Docker instructions add `--ulimit memlock=-1` and `--shm-size 2g`. The package sets neither; the engine
+5. On one card upstream's default drafter is DFlash2, which answers one request at a time. `PARALLEL` isn't exposed, so
+   apps sending requests together queue.
+6. Upstream's Docker instructions add `--ulimit memlock=-1` and `--shm-size 2g`. The package sets neither; the engine
    page-locks its GPU share through the NVIDIA driver and loads under the default limits.
 6. The engine is built with an AVX2 baseline; Strata's own AVX-512 kernels are still chosen at run time.
 

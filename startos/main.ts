@@ -287,7 +287,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
           // nginx answers with the "not ready yet" page until Strata listens.
           return (await modelLoaded())
             ? proxy
-            : { result: 'loading', message: i18n('Waiting for the Strata API') }
+            : {
+                result: 'loading',
+                waiting: true,
+                message: i18n('Waiting for the Strata API'),
+              }
         },
       },
       requires: [],

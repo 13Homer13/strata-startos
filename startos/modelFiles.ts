@@ -13,8 +13,8 @@ import {
 } from './utils'
 
 // What Strata keeps per model in the main volume. The vision encoder
-// (models/mmproj-*.gguf) and the MTP draft layer (mtp/) are shared by every
-// model and stay.
+// (models/mmproj-*.gguf), the MTP draft layer (mtp/) and the DFlash2 drafter
+// (dflash2/) are shared by every model and stay.
 const modelPaths = (preset: Preset) => {
   const config = `${installDir}/${configFile(preset)}`
   const base = config.slice(0, -'.json'.length)
