@@ -5,7 +5,7 @@ export const manifest = setupManifest({
   id: 'strata',
   title: 'Strata',
   license: 'MIT',
-  packageRepo: 'https://github.com/13Homer13/strata-startos',
+  packageRepo: 'https://github.com/Start9-Community/strata-startos',
   upstreamRepo: 'https://github.com/Niko1221/Strata',
   marketingUrl: 'https://github.com/Niko1221/Strata',
   donationUrl: 'https://buymeacoffee.com/strataengine',

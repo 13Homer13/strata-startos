@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises'
+
 // The one interface: nginx on apiPort, in front of Strata on strataPort. It
 // passes API-key requests through and puts the web app behind the UI password.
 export const apiHostId = 'api'
@@ -55,3 +57,11 @@ export const modelShards = 2
 // <name>.bak, .log and .shared-settings.json beside it.
 export const configFile = (preset: Preset) =>
   `strata-${modelTag(preset).toLowerCase()}.json`
+
+// In GiB, unrounded, as setup.py's ram_gb() compares it against a size's ram_gb.
+export const systemMemoryGB = async () => {
+  const kB = (await readFile('/proc/meminfo', 'utf8')).match(
+    /MemTotal:\s+(\d+)\s+kB/,
+  )?.[1]
+  return kB ? parseInt(kB, 10) / 1024 ** 2 : 0
+}

@@ -20,7 +20,7 @@ const dict = {
   'Choose which size of the model Strata runs, how much context it keeps and whether it reads pictures. A new size is downloaded on the next start.': 16,
   'Strata restarts to apply this. A size not downloaded yet takes a long time to fetch and prepare, and each size stays on disk.': 17,
   Model: 18,
-  'Sizes this server does not have enough RAM for are disabled. A size not downloaded yet is a download of 58-84 GB.': 19,
+  'A size that needs more RAM than this server has still runs, but more slowly, reading part of the model from disk. A size not downloaded yet is a download of 58-84 GB.': 19,
   '${ram} GB RAM, ${download} GB download': 20,
   'Qwen3.8-Flash-Next IQ2_XS (recommended)': 21,
   'Qwen3.8-Flash-Next Q2_0 (fastest)': 22,
@@ -92,6 +92,7 @@ const dict = {
 
   // actions/setModel.ts
   '${ram} GB RAM, downloaded': 80,
+  'more than this server has, slower': 86,
 
   // main.ts
   'The web server in front of Strata is not answering, so the Web UI and the API are unreachable. Restart Strata; if it happens again, check the logs.': 81,

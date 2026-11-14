@@ -100,6 +100,7 @@ server {
     error_page 502 503 504 /strata-not-ready.html;
     location = /strata-not-ready.html {
         internal;
+        auth_basic off;
         root /usr/share/nginx/html;
     }
 }

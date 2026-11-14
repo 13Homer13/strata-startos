@@ -33,6 +33,8 @@ consumer NVIDIA graphics card by splitting it across GPU, RAM and disk. It serve
 
 ## Image and Container Runtime
 
+Upstream's published CUDA image runs unmodified, behind an nginx front proxy.
+
 | Property      | Value                                                                                                                                      |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | Image         | `ghcr.io/niko1221/strata:<version>-cuda13`, upstream's published image, unmodified                                                         |
@@ -40,7 +42,7 @@ consumer NVIDIA graphics card by splitting it across GPU, RAM and disk. It serve
 | Architectures | x86_64 only                                                                                                                                |
 | Hardware      | Offered only on servers with an NVIDIA GPU (`driver: nvidia`) and at least 30 GiB of RAM; the image runs with the NVIDIA container runtime |
 | Entrypoint    | Upstream's `/opt/strata/entrypoint.sh`, unmodified, with its settings passed as environment variables                                      |
-| Front proxy   | `nginx:1.28.0-alpine`, the `web-ui` daemon                                                                                                 |
+| Front proxy   | Official `nginx` Alpine image, the `web-ui` daemon                                                                                         |
 
 Two subcontainers. `strata-sub` runs the daemon `primary` (Strata, on internal port 8082). `web-ui` runs nginx on
 internal port 8080, the only bound port, which forwards to Strata on `127.0.0.1:8082` (see
@@ -59,14 +61,14 @@ is part of the image (`/opt/strata/components/engine/`), so a start never compil
 
 Two volumes. `main` holds everything Strata downloads and prepares; `public` holds the API key.
 
-| Volume   | Mount point             | Contents                                                                                                                                                                                                                                                                                                                          |
-| -------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Volume   | Mount point             | Contents                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `main`   | `/data` in `strata-sub` | `Strata-data/models/<SIZE>/` (GGUF shards), `Strata-data/packs/<size>/` (prepared packs), `Strata-data/mtp/` (draft layer), `Strata-data/dflash2/` (DFlash2 drafter, about 0.8 GB), `install/strata-<tag>.json` (each model's run settings, plus its `.log`), `state/` (the `docker` preset, tuning, a copy of the key), `config/` and `home/` (the Terminal's own), `startos/store.json` |
-| `public` | not mounted by Strata   | `credentials.json` — `{ "apiKey": "…" }`, readable by services that depend on Strata                                                                                                                                                                                                                                              |
+| `public` | not mounted by Strata   | `credentials.json` — `{ "apiKey": "…" }`, readable by services that depend on Strata                                                                                                                                                                                                                                                                                                      |
 
 The image's environment sets `STRATA_INSTALL_DIR=/data/install`, `XDG_STATE_HOME=/data/state`,
-`XDG_CONFIG_HOME=/data/config` and `HOME=/data/home`. On its first start over a 0.1.x volume, the entrypoint moves
-`models/`, `packs/` and `mtp/` into `Strata-data/` (a rename, nothing downloaded again); the 0.1.x
+`XDG_CONFIG_HOME=/data/config` and `HOME=/data/home`. On its first start over a volume in upstream's older layout, the entrypoint moves
+`models/`, `packs/` and `mtp/` into `Strata-data/` (a rename, nothing downloaded again); the older
 `config/strata-*.json` files are left there and no longer read. If `.gguf` files are still in `/data/models` after that move (a move that
 failed), the entrypoint stops with "There are model files in …" rather than download the model again; the package
 sets neither `MODEL_PATH` nor `ALLOW_DOWNLOAD`, so move them into `Strata-data/models/<tag>/` with `package attach`.
@@ -140,22 +142,6 @@ address fails for those services because they don't trust the server's root CA.
 
 ## Installation and First-Run Flow
 
-### Signing Key
-
-This package is published on `https://registry.start9.pl`, not on a Start9 registry. On StartOS 0.4.1 and later, the
-Marketplace Install button stays disabled until the server trusts a key that signed the package. Add this public key
-under **System → Trusted Keys** (see [Trusted Keys](https://docs.start9.com/start-os/trusted-keys.html); **System → Trusted keyrings → Add** before StartOS 0.4.1.2):
-
-```
------BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEADITtWrNMNtESh9mB0Oq1jIuNFNM8Nglpmll+51I0hvk=
------END PUBLIC KEY-----
-```
-
-It signs `0.2.9:0` and later. Trust it for service packages only, which is all Strata needs, and leave OS updates off.
-
-### First Run
-
 Nothing is downloaded at install. Three critical tasks block the first start until the user runs **API Key**,
 **Set Web UI Password** and **Set Model**. On the first start after that, the entrypoint downloads the chosen size from Hugging Face (58–84 GB
 plus a ~6 GB draft layer), prepares its pack, writes `install/strata-<tag>.json`, and only then loads the model. That
@@ -175,8 +161,9 @@ Four actions, all safe to run in any state.
   model (1–3 minutes), and every client must be given the new key. The result shows the key (masked, copyable) and,
   below it, the interface's bridge Base URL (`http://10.0.3.1:<port>/v1`) for Open WebUI and other services on the
   same server. With no key yet (the install task), the field opens with a freshly generated key, so Submit sets it.
-- **Set Model** — chooses the size, context (32K/64K/128K) and image support. Sizes above the server's RAM floor are
-  disabled. A size whose shards all carry setup's `.done` mark is labelled "downloaded"; every other size shows its
+- **Set Model** — chooses the size, context (32K/64K/128K) and image support. A size whose RAM figure (upstream's `ram_gb`)
+  exceeds the server's `MemTotal` is labelled slower but stays selectable, as upstream allows: setup's low-RAM mode
+  (`--low-ram auto`) then reads part of the model from disk. A size whose shards all carry setup's `.done` mark is labelled "downloaded"; every other size shows its
   download size. Submitting the same values is a no-op. Any change restarts Strata; a size not yet on disk is downloaded
   and prepared on that start, and a changed context or image setting for a downloaded size re-runs setup without
   re-downloading. Old sizes stay on disk.
@@ -249,7 +236,7 @@ prepares the model again before it answers.
    apps sending requests together queue.
 6. Upstream's Docker instructions add `--ulimit memlock=-1` and `--shm-size 2g`. The package sets neither; the engine
    page-locks its GPU share through the NVIDIA driver and loads under the default limits.
-6. The engine is built with an AVX2 baseline; Strata's own AVX-512 kernels are still chosen at run time.
+7. The engine is built with an AVX2 baseline; Strata's own AVX-512 kernels are still chosen at run time.
 
 ---
 
@@ -259,7 +246,7 @@ prepares the model again before it answers.
 package_id: strata
 images:
   strata: ghcr.io/niko1221/strata:<version>-cuda13 (upstream's published image)
-  nginx: nginx:1.28.0-alpine
+  nginx: nginx (official Alpine image)
 architectures: [x86_64]
 subcontainers: [strata-sub, web-ui]
 volumes:

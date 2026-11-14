@@ -1,13 +1,5 @@
 # Strata
 
-Strata runs a large AI model on your own server. It splits the model between the graphics card, RAM and disk,
-so a single gaming-class NVIDIA card is enough. You can chat with it in your browser, and your apps and coding agents
-can use it like the OpenAI or Anthropic API. Nothing leaves your server.
-
-The model is [Qwen3.8-Flash-Next](https://huggingface.co/Qwen/Qwen3.8-Flash-Next) (125 billion parameters). You
-choose its size in **Set Model**, or pick one of two versions built on it: the **Coder**, which is made for code and
-fits 32 GB of RAM, or **Swift 1.5**, which thinks for less time before it answers.
-
 ## Documentation
 
 - [Which model?](https://github.com/Niko1221/Strata/blob/main/docs/MODELS.md) — the sizes, what each needs and how fast it is
@@ -31,15 +23,18 @@ Any model name works.
 
 1. Run **API Key**. The field already holds a new key: click the eye to see it, save it somewhere safe, and Submit.
 2. Run **Set Web UI Password** and save the password.
-3. Run **Set Model**. If you're not sure, take **IQ2_XS** with images off. Pick the context by what you'll use it for:
-   32K is enough for chatting, but coding agents such as opencode need **128K** (their instructions alone take about
-   10K tokens). The Coder fits 32 GB of RAM and is good at code, but weaker at everything else.
+3. Run **Set Model**. The sizes of Qwen3.8-Flash-Next trade speed for quality; if you're not sure, take **IQ2_XS**
+   with images off. **Swift 1.5** thinks for less time before it answers. The **Coder** fits 32 GB of RAM and is good
+   at code, but weaker at everything else. Pick the context by what you'll use it for: 32K is enough for chatting, but
+   coding agents such as opencode need **128K** (their instructions alone take about 10K tokens).
 4. Start Strata. The first start downloads the model (58–84 GB) and prepares it, which can take hours. The
    **Strata API** check shows how much is downloaded, then that the model is being prepared, then that it is loading.
    The logs print the download's progress every 10%.
 5. When the check turns green, open the **Web UI and API** interface, log in, and send a chat to make sure it answers.
 
 Every later start skips the download and takes 1–3 minutes to load the model.
+
+Strata downloads models from Hugging Face, which sees your server's IP address. If you publish Strata through a tunnel to keep your home IP private, send its outbound traffic through that tunnel too.
 
 ## Connecting apps
 
