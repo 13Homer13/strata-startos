@@ -32,7 +32,8 @@ Any model name works.
    The logs print the download's progress every 10%.
 5. When the check turns green, open the **Web UI and API** interface, log in, and send a chat to make sure it answers.
 
-Every later start skips the download and takes 1–3 minutes to load the model.
+Every later start skips the download and takes 1–3 minutes to load the model. The first start after an update
+can take longer while Strata prepares the model again.
 
 Strata downloads models from Hugging Face, which sees your server's IP address. If you publish Strata through a tunnel to keep your home IP private, send its outbound traffic through that tunnel too.
 
