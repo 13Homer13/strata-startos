@@ -1,18 +1,18 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '0.2.13:0',
+  version: '0.2.17:0',
   releaseNotes: {
     en_US:
-      'Strata is updated to 0.2.13 (engine 0.1.59), with new DFlash2 drafting defaults for some cards and a fix for loading the expert store on Linux when the file cache can hold it. Downloaded models are kept. This version needs StartOS 0.4.1 or later.',
+      'Strata is updated to 0.2.17 (engine 0.1.63). The route tail skip, which made answers differ slightly, is now off by default. The first start after the update sets the model up again before it loads. Completed downloads are reused. New Coder downloads use an updated build. Full release notes: https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
     es_ES:
-      'Strata se actualiza a 0.2.13 (motor 0.1.59), con nuevos valores predeterminados del borrador DFlash2 para algunas tarjetas y una corrección en la carga del almacén de expertos en Linux cuando la caché de archivos puede contenerlo. Los modelos descargados se conservan. Esta versión requiere StartOS 0.4.1 o posterior.',
+      'Strata se actualiza a 0.2.17 (motor 0.1.63). El salto de cola de rutas, que hacía que las respuestas variaran ligeramente, ahora está desactivado por defecto. El primer inicio tras la actualización vuelve a preparar el modelo antes de cargarlo. Las descargas completadas se reutilizan. Las nuevas descargas del modelo Coder usan una versión actualizada. Notas completas de la versión: https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
     de_DE:
-      'Strata wird auf 0.2.13 aktualisiert (Engine 0.1.59): neue DFlash2-Drafter-Standardwerte für einige Karten und eine Korrektur beim Laden des Expertenspeichers unter Linux, wenn der Dateicache ihn aufnehmen kann. Heruntergeladene Modelle bleiben erhalten. Diese Version erfordert StartOS 0.4.1 oder neuer.',
+      'Strata wird auf 0.2.17 aktualisiert (Engine 0.1.63). Der Route-Tail-Skip, durch den Antworten leicht abwichen, ist jetzt standardmäßig aus. Der erste Start nach dem Update richtet das Modell vor dem Laden neu ein. Abgeschlossene Downloads werden wiederverwendet. Neue Coder-Downloads verwenden eine aktualisierte Version. Vollständige Versionshinweise: https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
     pl_PL:
-      'Strata zaktualizowana do 0.2.13 (silnik 0.1.59): nowe domyślne ustawienia draftera DFlash2 dla niektórych kart i poprawka wczytywania magazynu ekspertów w Linuksie, gdy pamięć podręczna plików może go pomieścić. Pobrane modele zostają zachowane. Ta wersja wymaga StartOS 0.4.1 lub nowszego.',
+      'Strata zaktualizowana do 0.2.17 (silnik 0.1.63). Pomijanie końcówki tras (route tail skip), przez które odpowiedzi nieznacznie się różniły, jest teraz domyślnie wyłączone. Pierwsze uruchomienie po aktualizacji ponownie przygotowuje model przed jego wczytaniem. Ukończone pobrania są ponownie wykorzystywane. Nowe pobrania modelu Coder korzystają ze zaktualizowanej wersji. Pełne informacje o wydaniu: https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
     fr_FR:
-      'Strata passe en 0.2.13 (moteur 0.1.59), avec de nouveaux réglages par défaut du drafter DFlash2 pour certaines cartes et une correction du chargement du magasin d’experts sous Linux lorsque le cache de fichiers peut le contenir. Les modèles téléchargés sont conservés. Cette version nécessite StartOS 0.4.1 ou ultérieur.',
+      'Strata passe en 0.2.17 (moteur 0.1.63). Le saut de fin de route (route tail skip), qui faisait légèrement varier les réponses, est désormais désactivé par défaut. Le premier démarrage après la mise à jour prépare à nouveau le modèle avant de le charger. Les téléchargements terminés sont réutilisés. Les nouveaux téléchargements du modèle Coder utilisent une version mise à jour. Notes de version complètes : https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
   },
   migrations: {
     up: async ({ effects }) => {},

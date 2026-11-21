@@ -143,10 +143,13 @@ address fails for those services because they don't trust the server's root CA.
 ## Installation and First-Run Flow
 
 Nothing is downloaded at install. Three critical tasks block the first start until the user runs **API Key**,
-**Set Web UI Password** and **Set Model**. On the first start after that, the entrypoint downloads the chosen size from Hugging Face (58–84 GB
-plus a ~6 GB draft layer), prepares its pack, writes `install/strata-<tag>.json`, and only then loads the model. That
-can take hours on a slow connection. Later starts skip straight to loading, which takes 1–3 minutes while Strata reads
-35–55 GB into RAM and page-locks part of it.
+**Set Web UI Password** and **Set Model**. On the first start after that, the entrypoint downloads the chosen size from Hugging Face (58–84 GB, plus a
+drafter: a ~1.2 GB download for the DFlash2 drafter where the engine and the model support it, else the ~5 GB MTP draft layer),
+prepares its pack, writes `install/strata-<tag>.json`, and only then loads the model. That can take hours on a slow
+connection. Later starts skip straight to loading, which takes 1–3 minutes while Strata reads 35–55 GB into RAM and
+page-locks part of it. The first start on a new engine version is the exception: the entrypoint drops run settings that
+name an engine folder the image doesn't have and runs setup again. Completed model files with `.done` markers are
+reused; setup downloads missing files and prepares the pack before loading.
 
 Upstream's setup measures RAM from `/proc/meminfo`, which is the whole server's.
 

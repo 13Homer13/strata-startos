@@ -23,15 +23,17 @@ Take the highest version that `ghcr.io/niko1221/strata` actually lists (the imag
 ## Applying the bump
 
 1. Set the tag in `startos/manifest/index.ts` (`ghcr.io/niko1221/strata:<version>-cuda13`).
-2. Diff upstream's container contract between the two tags: `docker/entrypoint.sh` (env vars, the `/data` layout,
-   the legacy-volume moves) and `docs/DOCKER.md` (Settings, the minimum driver). Carry any change into
-   `startos/main.ts`, and `dataDir`/`installDir` in `startos/utils.ts`.
-3. Check `MODELS` and `FAMILIES` in the image's `setup.py` against `presets` in `startos/utils.ts`: sizes, RAM floors,
-   download sizes, shard counts and tags. One way is to print them from the image:
+2. Diff upstream's container contract between the two tags: `tools/docker/entrypoint.sh` (`docker/entrypoint.sh` before
+   0.2.16; env vars, the `/data` layout, the legacy-volume moves) and `docs/DOCKER.md` (Settings, the minimum driver).
+   Carry any change into `startos/main.ts`, and `dataDir`/`installDir` in `startos/utils.ts`.
+3. Check `MODELS` and `FAMILIES` in the image's `setup.py` (`terminal/setup.py` in the source, `setup.py` before 0.2.16)
+   against `presets` in `startos/utils.ts`: sizes, RAM floors, download sizes, shard counts and tags. One way is to print
+   them from the image:
    `docker run --rm --entrypoint /opt/strata/terminal/python/bin/python3 -w /opt/strata/terminal <image> -c 'import setup; print(setup.MODELS)'`.
+   Diff `HF_REVISIONS` and the associated hash tables too. Check the download and `.done` handling before claiming
+   in the release notes that an update re-downloads an existing model.
 4. Check that the nginx `sub_filter` targets in `startos/main.ts` still exist in the image's
    `/opt/strata/terminal/serve/web/` (`</head>`, the `strata.apikey` localStorage key, the `#api-key` field).
 5. Set `version` in `startos/versions/current.ts` to the tag without its `v` (`0.2.3` → `0.2.3:0`) and update
    the release notes.
 6. `make`, then install and confirm a model still starts and answers on `/v1`.
-
