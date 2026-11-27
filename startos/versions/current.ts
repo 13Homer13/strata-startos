@@ -1,18 +1,18 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '0.2.17:0',
+  version: '0.2.22:0',
   releaseNotes: {
     en_US:
-      'Strata is updated to 0.2.17 (engine 0.1.63). The route tail skip, which made answers differ slightly, is now off by default. The first start after the update sets the model up again before it loads. Completed downloads are reused. New Coder downloads use an updated build. Full release notes: https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
+      'Strata is updated to 0.2.22 (engine 0.1.69). Agents no longer stay paused after an update, and long tool calls through /v1/responses keep their connection open. The first start after the update sets the model up again before it loads. Completed downloads are reused. Full release notes: https://github.com/Niko1221/Strata/releases/tag/v0.2.22',
     es_ES:
-      'Strata se actualiza a 0.2.17 (motor 0.1.63). El salto de cola de rutas, que hacía que las respuestas variaran ligeramente, ahora está desactivado por defecto. El primer inicio tras la actualización vuelve a preparar el modelo antes de cargarlo. Las descargas completadas se reutilizan. Las nuevas descargas del modelo Coder usan una versión actualizada. Notas completas de la versión: https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
+      'Strata se actualiza a 0.2.22 (motor 0.1.69). Los agentes ya no quedan en pausa tras una actualización, y las llamadas largas a herramientas por /v1/responses mantienen la conexión abierta. El primer inicio tras la actualización vuelve a preparar el modelo antes de cargarlo. Las descargas completadas se reutilizan. Notas completas de la versión: https://github.com/Niko1221/Strata/releases/tag/v0.2.22',
     de_DE:
-      'Strata wird auf 0.2.17 aktualisiert (Engine 0.1.63). Der Route-Tail-Skip, durch den Antworten leicht abwichen, ist jetzt standardmäßig aus. Der erste Start nach dem Update richtet das Modell vor dem Laden neu ein. Abgeschlossene Downloads werden wiederverwendet. Neue Coder-Downloads verwenden eine aktualisierte Version. Vollständige Versionshinweise: https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
+      'Strata wird auf 0.2.22 aktualisiert (Engine 0.1.69). Agenten bleiben nach einem Update nicht mehr pausiert, und lange Tool-Aufrufe über /v1/responses halten ihre Verbindung offen. Der erste Start nach dem Update richtet das Modell vor dem Laden neu ein. Abgeschlossene Downloads werden wiederverwendet. Vollständige Versionshinweise: https://github.com/Niko1221/Strata/releases/tag/v0.2.22',
     pl_PL:
-      'Strata zaktualizowana do 0.2.17 (silnik 0.1.63). Pomijanie końcówki tras (route tail skip), przez które odpowiedzi nieznacznie się różniły, jest teraz domyślnie wyłączone. Pierwsze uruchomienie po aktualizacji ponownie przygotowuje model przed jego wczytaniem. Ukończone pobrania są ponownie wykorzystywane. Nowe pobrania modelu Coder korzystają ze zaktualizowanej wersji. Pełne informacje o wydaniu: https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
+      'Strata zaktualizowana do 0.2.22 (silnik 0.1.69). Agenci nie pozostają już wstrzymani po aktualizacji, a długie wywołania narzędzi przez /v1/responses utrzymują połączenie. Pierwsze uruchomienie po aktualizacji ponownie przygotowuje model przed jego wczytaniem. Ukończone pobrania są ponownie wykorzystywane. Pełne informacje o wydaniu: https://github.com/Niko1221/Strata/releases/tag/v0.2.22',
     fr_FR:
-      'Strata passe en 0.2.17 (moteur 0.1.63). Le saut de fin de route (route tail skip), qui faisait légèrement varier les réponses, est désormais désactivé par défaut. Le premier démarrage après la mise à jour prépare à nouveau le modèle avant de le charger. Les téléchargements terminés sont réutilisés. Les nouveaux téléchargements du modèle Coder utilisent une version mise à jour. Notes de version complètes : https://github.com/Niko1221/Strata/releases/tag/v0.2.17',
+      "Strata passe en 0.2.22 (moteur 0.1.69). Les agents ne restent plus en pause après une mise à jour, et les longs appels d'outils via /v1/responses gardent leur connexion ouverte. Le premier démarrage après la mise à jour prépare à nouveau le modèle avant de le charger. Les téléchargements terminés sont réutilisés. Notes de version complètes : https://github.com/Niko1221/Strata/releases/tag/v0.2.22",
   },
   migrations: {
     up: async ({ effects }) => {},
